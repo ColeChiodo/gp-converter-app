@@ -1,0 +1,66 @@
+{
+  "name": "gp-converter",
+  "description": "Converts .gp files into a format that is suitable for BassHero Guitar Pedal",
+  "license": "MIT",
+  "main": "electron/main.cjs",
+  "author": {
+    "name": "Cole Chiodo",
+    "url": "https://colechiodo.cc",
+    "email": "me@colechiodo.cc"
+  },
+  "homepage": "https://colechiodo.cc",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev:frontend": "cd frontend && vite",
+    "dev:backend": "python_api/.venv/bin/python -m uvicorn python_api.main:app --reload --host 127.0.0.1 --port 8000",
+    "dev:electron": "cross-env NODE_ENV=development electron electron/main.cjs",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:electron\"",
+    "build:frontend": "cd frontend && vite build",
+    "build": "npm run build:frontend",
+    "start": "electron electron/main.cjs",
+    "pack": "npm run build:frontend && electron-builder --dir",
+    "dist": "npm run build:frontend && electron-builder"
+  },
+  "dependencies": {
+    "vue": "^3.5.24"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/tsconfig": "^0.8.1",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "electron": "^39.2.3",
+    "electron-builder": "^26.0.12",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4",
+    "vue-tsc": "^3.1.4",
+    "wait-on": "^9.0.3"
+  },
+  "build": {
+    "appId": "gpconverter.colechiodo.cc",
+    "productName": "gp-converter",
+    "files": [
+      "electron/**/*",
+      "frontend/dist/**/*",
+      "python_api/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "python_api/",
+        "to": "python_api/",
+        "filter": ["**/*"]
+      }
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Utility"
+    }
+  }
+}
