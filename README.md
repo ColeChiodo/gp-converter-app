@@ -62,3 +62,6 @@ It then turns it into the following format:
 The ESP runs a small HTTP server on startup with `POST` endpoint to upload a file.
 Also on startup, the ESP announces itself to the local network using an mDNS.
 * This means that the ESP is accessable on the local network at `basshero.local`
+
+***
+**© 2025 [colechiodo.cc](https://colechiodo.cc) | MIT License**
