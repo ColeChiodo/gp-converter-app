@@ -1,7 +1,8 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Response
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-import guitarpro
+import tempfile
+from .gp_parser import parse_gp_file
 
 app = FastAPI()
 
@@ -20,24 +21,11 @@ async def parse_gp(file: UploadFile = File(...)):
     tmp.write(await file.read())
     tmp.close()
 
-    # Parse .gp file
-    song = guitarpro.parse(tmp.name)
+    # Use the external parser
+    binary_data = parse_gp_file(tmp.name)
 
-    # Example: convert to minimal JSON
-    result = {
-        "title": song.title,
-        "artist": song.artist,
-        "bpm": song.tempo,
-        "tracks": [
-            {
-                "name": track.name,
-                "tuning": track.strings,
-                "bars": len(track.bars)
-            }
-            for track in song.tracks
-        ]
-    }
-    return result
+    # Return as binary response
+    return Response(content=binary_data, media_type="application/octet-stream")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

@@ -1,0 +1,6 @@
+testdata/
+output.bh1
+output.json
+result.json
+__pycache__
+.venv

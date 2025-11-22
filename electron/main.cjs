@@ -7,6 +7,7 @@ let pythonProcess;
 const isDev = process.env.NODE_ENV === 'development';
 
 function createWindow() {
+  // create browser window. remove menu bar
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -14,6 +15,7 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
     },
+    frame: false,
   });
 
   if (isDev) {
