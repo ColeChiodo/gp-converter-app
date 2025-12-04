@@ -45,19 +45,55 @@ npm run dist
 A glimps at how the code functions for those that want to know.
 ### How does the file conversion work?
 A python script `python_api/main.py` uses the [PyGuitarPro Package](https://github.com/Perlence/PyGuitarPro) to read `.gp5` files.
-* This only works for `gp3` `gp4` and `gp5` files. 
+* This only works for `gp5` files at this moment. 
 
 It then turns it into the following format:
-```json
-{
-    song title
-    author
-    tuning
-    per bar time signature
-    per bar bpm
-    tab ascii (per string)
-}
+
+```python
+songname_bin/
+    .meta
+    .bars
+    instruments/
+        Track1.bin
+        Track2.bin
 ```
+**.meta** - defines the metadata of the song
+| Field            | Type               | Description      |
+| ---------------- | ------------------ | ---------------- |
+| magic            | char[4]            | `"BHTB"`         |
+| version          | uint8              | File version (1) |
+| title            | u32 length + UTF-8 | Song title       |
+| artist           | u32 length + UTF-8 | Song artist      |
+| album            | u32 length + UTF-8 | Album name       |
+| year             | u32 length + UTF-8 | Copyright year   |
+| tab_author       | u32 length + UTF-8 | Tab author       |
+
+**.bars** - defines the structure of the sheet music
+| Field         | Type    | Size | Description          |
+| ------------- | ------- | ---- | -------------------- |
+| magic         | char[4] | 4    | `"BHTB"`             |
+| version       | uint8   | 1    | Format version       |
+| bar_count     | uint32  | 4    | Total number of bars |
+| initial_beats | uint8   | 1    | First bar numerator  |
+| initial_bpm   | uint16  | 2    | First bar BPM        |
+
+**instruments/*.bin** - defines the instrument and note events
+| Field        | Type                  | Size            | Description                     |
+| ------------ | --------------------- | --------------- | ------------------------------- |
+| magic        | char[4]               | 4               | `"BHTB"`                        |
+| version      | uint8                 | 1               | Format version                  |
+| string_count | uint8                 | 1               | Number of strings on instrument |
+| event_count  | uint16                | 2               | How many note events follow     |
+| name_length  | uint8                 | 1               | Length of instrument name       |
+| name_bytes   | uint8[name_length]    | name_length     | UTF-8 name                      |
+| Events       | 4 bytes * event_count | Each note event |                                 |
+| Field    | Type  | Size | Description         |
+| -------- | ----- | ---- | ------------------- |
+| offset   | uint8 | 1    | Beat offset (0–255) |
+| duration | uint8 | 1    | Duration (0–255)    |
+| string   | uint8 | 1    | String number       |
+| fret     | uint8 | 1    | Fret number         |
+
 ### How does the file transfer over WiFi work.
 The ESP runs a small HTTP server on startup with `POST` endpoint to upload a file.
 Also on startup, the ESP announces itself to the local network using an mDNS.
